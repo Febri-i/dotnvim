@@ -6,21 +6,21 @@ if not vim.loop.fs_stat(lazypath) then
   vim.fn.system {
     'git',
     'clone',
-    '
+    '--filter=blob:none',
     'https://github.com/folke/lazy.nvim.git',
-    '
+    '--branch=stable', -- latest stable release
     lazypath,
   }
 end
 vim.opt.rtp:prepend(lazypath)
 
 require('lazy').setup({
-  
+
   'tpope/vim-fugitive',
   'tpope/vim-rhubarb',
   'tpope/vim-sleuth',
   {
-    
+
     'neovim/nvim-lspconfig',
     dependencies = {
       "yioneko/nvim-vtsls",
@@ -49,7 +49,6 @@ require('lazy').setup({
     },
   },
   {
-    
     'lewis6991/gitsigns.nvim',
     opts = {
       signs = {
@@ -61,8 +60,6 @@ require('lazy').setup({
       },
       on_attach = function(bufnr)
         vim.keymap.set('n', '<leader>hp', require('gitsigns').preview_hunk, { buffer = bufnr, desc = 'Preview git hunk' })
-
-        
         local gs = package.loaded.gitsigns
         vim.keymap.set({ 'n', 'v' }, ']c', function()
           if vim.wo.diff then
@@ -87,13 +84,12 @@ require('lazy').setup({
   },
   {
     'nvim-lualine/lualine.nvim',
-    
     opts = {
       options = {
         icons_enabled = false,
-        theme = 'catppuccin',
-        component_separators = { left = "", right = "" },
-        section_separators = { left = "", right = "" },
+        theme = require("lualine-eva"),
+        component_separators = { left = "", right = "" },
+        section_separators = { left = "", right = "" },
         disabled_filetypes = { "NvimTree" },
       },
     },
@@ -101,11 +97,35 @@ require('lazy').setup({
   {
     'lukas-reineke/indent-blankline.nvim',
     main = 'ibl',
-    opts = {
+    config = function()
+      local hooks = require("ibl.hooks")
+      hooks.register(hooks.type.HIGHLIGHT_SETUP, function()
+        vim.api.nvim_set_hl(0, "RainbowRed", { fg = "#E06C75" })
+        vim.api.nvim_set_hl(0, "RainbowYellow", { fg = "#E5C07B" })
+        vim.api.nvim_set_hl(0, "RainbowBlue", { fg = "#61AFEF" })
+        vim.api.nvim_set_hl(0, "RainbowOrange", { fg = "#D19A66" })
+        vim.api.nvim_set_hl(0, "RainbowGreen", { fg = "#98C379" })
+        vim.api.nvim_set_hl(0, "RainbowViolet", { fg = "#C678DD" })
+        vim.api.nvim_set_hl(0, "RainbowCyan", { fg = "#56B6C2" })
+      end)
+      require("ibl").setup({
 
-      exclude = { filetypes = { "TelescopPrompt", "NvimTree", "mason", "lazy", "checkhealth", "help", "dashboard" } },
-      scope = { enabled = false },
-    },
+        exclude = { filetypes = { "TelescopPrompt", "NvimTree", "mason", "lazy", "checkhealth", "help", "dashboard" } },
+        scope = { enabled = false },
+        indent = {
+          highlight = {
+            "RainbowRed",
+            "RainbowYellow",
+            "RainbowBlue",
+            "RainbowOrange",
+            "RainbowGreen",
+            "RainbowViolet",
+            "RainbowCyan",
+          }
+        }
+      }
+      )
+    end
   },
   { 'numToStr/Comment.nvim',  opts = {} },
   {
@@ -199,11 +219,11 @@ vim.keymap.set('n', '<leader>sr', require('telescope.builtin').resume, { desc = 
 
 vim.defer_fn(function()
   require('nvim-treesitter.configs').setup {
-    
+
     ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'javascript', 'typescript', 'vimdoc', 'vim',
       'bash' },
 
-    
+
     auto_install = false,
     autotag = { enable = true }, context_commentstring = {
     enable = true,
@@ -222,9 +242,9 @@ vim.defer_fn(function()
     textobjects = {
       select = {
         enable = true,
-        lookahead = true, 
+        lookahead = true,
         keymaps = {
-          
+
           ['aa'] = '@parameter.outer',
           ['ia'] = '@parameter.inner',
           ['af'] = '@function.outer',
@@ -235,7 +255,7 @@ vim.defer_fn(function()
       },
       move = {
         enable = true,
-        set_jumps = true, 
+        set_jumps = true,
         goto_next_start = {
           [']m'] = '@function.outer',
           [']]'] = '@class.outer',
@@ -291,11 +311,11 @@ local on_attach = function(_, bufnr)
   nmap('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
   nmap('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
 
-  
-  nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
-  nmap('<C-k>', vim.lsp.buf.signature_help, 'Signature Documentation')
 
-  
+  nmap('K', vim.lsp.buf.hover, 'Hover Documentation')
+  nmap('<leader>k', vim.lsp.buf.signature_help, 'Signature Documentation')
+
+
   nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
   nmap('<leader>wa', vim.lsp.buf.add_workspace_folder, '[W]orkspace [A]dd Folder')
   nmap('<leader>wr', vim.lsp.buf.remove_workspace_folder, '[W]orkspace [R]emove Folder')
@@ -303,7 +323,7 @@ local on_attach = function(_, bufnr)
     print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
   end, '[W]orkspace [L]ist Folders')
 
-  
+
   vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
     vim.lsp.buf.format()
   end, { desc = 'Format current buffer with LSP' })
@@ -347,13 +367,10 @@ mason_lspconfig.setup_handlers {
   end,
 }
 
-
-
 local cmp = require 'cmp'
 local luasnip = require 'luasnip'
 require('luasnip.loaders.from_vscode').lazy_load()
 luasnip.config.setup {}
-
 cmp.setup {
   snippet = {
     expand = function(args)

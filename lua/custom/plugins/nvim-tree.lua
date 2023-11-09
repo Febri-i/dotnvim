@@ -11,7 +11,7 @@ local function my_on_attach(bufnr)
 
 	-- default mappings
 	api.config.mappings.default_on_attach(bufnr)
-	vim.keymap.set("n", "<C-S-m>", api.node.open.horizontal, opts("Open: Horizontal  Split"))
+	vim.keymap.set("n", "<C-p>", api.node.open.horizontal, opts("Open: Horizontal  Split"))
 	vim.keymap.set("n", "<C-m>", api.node.open.vertical, opts("Open: Vertical Split"))
 end
 
@@ -26,10 +26,13 @@ return {
 				enable = true,
 			},
 			on_attach = my_on_attach,
-
-
-
-
 		})
+		require("nvim-tree.api").events.subscribe("TreeOpen", function()
+			vim.g.nvimtreeopen = true;
+		end)
+
+		require("nvim-tree.api").events.subscribe("TreeClose", function()
+			vim.g.nvimtreeopen = false;
+		end)
 	end
 }
