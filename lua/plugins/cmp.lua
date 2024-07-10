@@ -1,5 +1,3 @@
-local bordercolor = {
-}
 return {
 
 	'hrsh7th/nvim-cmp',
@@ -37,8 +35,8 @@ return {
 			},
 
 			window = {
-				completion = cmp.config.window.bordered(bordercolor),
-				documentation = cmp.config.window.bordered(bordercolor),
+				completion = cmp.config.window.bordered(),
+				documentation = cmp.config.window.bordered(),
 			},
 			mapping = cmp.mapping.preset.insert({
 				['<C-b>'] = cmp.mapping.scroll_docs(-4),
@@ -88,6 +86,7 @@ return {
 				{ name = 'buffer' },
 			})
 		})
+
 
 		-- Use buffer source for `/` and `?` (if you enabled `native_menu`, this won't work anymore).
 		cmp.setup.cmdline({ '/', '?' }, {

@@ -14,10 +14,9 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 
-require("lazy").setup({ { import = "plugins" } })
+require("lazy").setup({ { import = "plugins" } }, { default = { lazy = true } });
 
 
 
 -- Border shit
-vim.api.nvim_set_hl(0, 'FloatBorder', { fg = "#27a1b9", bg = "#1a1b26" });
 -- vim.api.nvim_set_hl(0, 'NormalFloat', { fg = "#c0caf5", bg = "#1a1b26" });

@@ -2,8 +2,8 @@ return {
 	"ray-x/lsp_signature.nvim",
 	opts = {
 		always_trigger = true,
+		bind = true,
 		handler_opts = {
-
 		},
 	},
 	config = function(_, opts)
